@@ -74,6 +74,17 @@
     <h2>Season Tracker</h2>
 </div>
 
+<div style="text-align:center; margin-bottom:15px;">
+    <input 
+        type="text" 
+        id="teamNameInput" 
+        placeholder="Enter Team Name"
+        oninput="saveTeamName()"
+        style="padding:8px; border-radius:6px; border:none; width:200px;"
+    >
+    <h2 id="teamNameDisplay" style="margin-top:10px;"></h2>
+</div>
+    
 <div class="card">
     <table>
         <thead>
@@ -94,25 +105,34 @@
         <span>Total Goals: <span id="totalGoals">0</span></span>
     </div>
 </div>
-
 <script>
 const tableBody = document.getElementById("tableBody");
 
+// ✅ Load saved data when page opens
+window.onload = function () {
+    loadData();
+};
+
+// Determine result
 function getResult(gs, gc) {
     if (gs > gc) return "W";
     if (gs === gc) return "D";
     return "L";
 }
 
+// Points system
 function getPoints(result) {
     if (result === "W") return 3;
     if (result === "D") return 1;
     return 0;
 }
 
+// Update table + SAVE automatically
 function updateTable() {
     let totalPoints = 0;
     let totalGoals = 0;
+
+    let data = [];
 
     for (let i = 1; i <= 38; i++) {
         let gsInput = document.getElementById(`gs-${i}`);
@@ -125,7 +145,6 @@ function updateTable() {
         let ptsCell = document.getElementById(`pts-${i}`);
         let totalCell = document.getElementById(`total-${i}`);
 
-        // Only calculate if BOTH inputs are filled
         if (gs !== "" && gc !== "") {
             gs = parseInt(gs);
             gc = parseInt(gc);
@@ -141,10 +160,14 @@ function updateTable() {
                                    result === "D" ? "draw" : "loss";
 
             ptsCell.innerText = points;
+
+            data.push({ gs, gc }); // save
         } else {
             resultCell.innerText = "";
             resultCell.className = "";
             ptsCell.innerText = "0";
+
+            data.push({ gs: "", gc: "" });
         }
 
         totalCell.innerText = totalPoints;
@@ -152,6 +175,36 @@ function updateTable() {
 
     document.getElementById("totalPoints").innerText = totalPoints;
     document.getElementById("totalGoals").innerText = totalGoals;
+
+    // ✅ SAVE TO LOCAL STORAGE
+    localStorage.setItem("seasonData", JSON.stringify(data));
+}
+
+// ✅ Save team name
+function saveTeamName() {
+    let name = document.getElementById("teamNameInput").value;
+    localStorage.setItem("teamName", name);
+    document.getElementById("teamNameDisplay").innerText = name;
+}
+
+// ✅ Load saved data
+function loadData() {
+    let savedData = JSON.parse(localStorage.getItem("seasonData")) || [];
+    let savedName = localStorage.getItem("teamName") || "";
+
+    document.getElementById("teamNameInput").value = savedName;
+    document.getElementById("teamNameDisplay").innerText = savedName;
+
+    for (let i = 1; i <= 38; i++) {
+        let rowData = savedData[i - 1];
+
+        if (rowData) {
+            document.getElementById(`gs-${i}`).value = rowData.gs;
+            document.getElementById(`gc-${i}`).value = rowData.gc;
+        }
+    }
+
+    updateTable();
 }
 
 // Generate rows
@@ -168,6 +221,7 @@ for (let i = 1; i <= 38; i++) {
     `;
 }
 </script>
+
 
 </body>
 </html>
