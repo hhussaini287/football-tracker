@@ -108,26 +108,22 @@
 <script>
 const tableBody = document.getElementById("tableBody");
 
-// ✅ Load saved data when page opens
 window.onload = function () {
     loadData();
 };
 
-// Determine result
 function getResult(gs, gc) {
     if (gs > gc) return "W";
     if (gs === gc) return "D";
     return "L";
 }
 
-// Points system
 function getPoints(result) {
     if (result === "W") return 3;
     if (result === "D") return 1;
     return 0;
 }
 
-// Update table + SAVE automatically
 function updateTable() {
     let totalPoints = 0;
     let totalGoals = 0;
@@ -176,18 +172,15 @@ function updateTable() {
     document.getElementById("totalPoints").innerText = totalPoints;
     document.getElementById("totalGoals").innerText = totalGoals;
 
-    // ✅ SAVE TO LOCAL STORAGE
     localStorage.setItem("seasonData", JSON.stringify(data));
 }
 
-// ✅ Save team name
 function saveTeamName() {
     let name = document.getElementById("teamNameInput").value;
     localStorage.setItem("teamName", name);
     document.getElementById("teamNameDisplay").innerText = name;
 }
 
-// ✅ Load saved data
 function loadData() {
     let savedData = JSON.parse(localStorage.getItem("seasonData")) || [];
     let savedName = localStorage.getItem("teamName") || "";
@@ -207,7 +200,6 @@ function loadData() {
     updateTable();
 }
 
-// Generate rows
 for (let i = 1; i <= 38; i++) {
     tableBody.innerHTML += `
     <tr>
@@ -219,6 +211,17 @@ for (let i = 1; i <= 38; i++) {
         <td id="total-${i}">0</td>
     </tr>
     `;
+}
+function moveNext(current, type) {
+    let index = parseInt(current.dataset.index);
+
+    if (type === "gs") {
+        document.querySelector(`#gc-${index}`).focus();
+    } else {
+        if (index < 38) {
+            document.querySelector(`#gs-${index + 1}`).focus();
+        }
+    }
 }
 </script>
 
