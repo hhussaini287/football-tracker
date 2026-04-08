@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>La Liga Season Tracker</title>
+
+<style>
+    body {
+        font-family: 'Segoe UI', sans-serif;
+        background: #0f172a;
+        color: white;
+        padding: 20px;
+    }
+
+    .header {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .header img {
+        width: 70px;
+    }
+
+    .card {
+        background: #1e293b;
+        padding: 20px;
+        border-radius: 10px;
+        overflow-x: auto;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 900px;
+    }
+
+    th, td {
+        padding: 10px;
+        text-align: center;
+        border-bottom: 1px solid #334155;
+    }
+
+    th {
+        background: #334155;
+    }
+
+    input {
+        width: 60px;
+        padding: 5px;
+        text-align: center;
+        background: #0f172a;
+        color: white;
+        border: 1px solid #475569;
+        border-radius: 5px;
+    }
+
+    .win { color: #22c55e; font-weight: bold; }
+    .draw { color: #eab308; font-weight: bold; }
+    .loss { color: #ef4444; font-weight: bold; }
+
+    .summary {
+        margin-top: 15px;
+        display: flex;
+        justify-content: space-between;
+        font-weight: bold;
+    }
+</style>
+</head>
+
+<body>
+
+<div class="header">
+    <img src="https://upload.wikimedia.org/wikipedia/en/f/f2/Premier_League_Logo.svg">
+    <h2>Season Tracker</h2>
+</div>
+
+<div class="card">
+    <table>
+        <thead>
+            <tr>
+                <th>Week</th>
+                <th>Goals Scored</th>
+                <th>Goals Conceded</th>
+                <th>Result</th>
+                <th>Points</th>
+                <th>Total Points</th>
+            </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+    </table>
+
+    <div class="summary">
+        <span>Total Points: <span id="totalPoints">0</span></span>
+        <span>Total Goals: <span id="totalGoals">0</span></span>
+    </div>
+</div>
+
+<script>
+const tableBody = document.getElementById("tableBody");
+
+function getResult(gs, gc) {
+    if (gs > gc) return "W";
+    if (gs === gc) return "D";
+    return "L";
+}
+
+function getPoints(result) {
+    if (result === "W") return 3;
+    if (result === "D") return 1;
+    return 0;
+}
+
+function updateTable() {
+    let totalPoints = 0;
+    let totalGoals = 0;
+
+    for (let i = 1; i <= 38; i++) {
+        let gsInput = document.getElementById(`gs-${i}`);
+        let gcInput = document.getElementById(`gc-${i}`);
+
+        let gs = gsInput.value;
+        let gc = gcInput.value;
+
+        let resultCell = document.getElementById(`result-${i}`);
+        let ptsCell = document.getElementById(`pts-${i}`);
+        let totalCell = document.getElementById(`total-${i}`);
+
+        // Only calculate if BOTH inputs are filled
+        if (gs !== "" && gc !== "") {
+            gs = parseInt(gs);
+            gc = parseInt(gc);
+
+            let result = getResult(gs, gc);
+            let points = getPoints(result);
+
+            totalPoints += points;
+            totalGoals += gs;
+
+            resultCell.innerText = result;
+            resultCell.className = result === "W" ? "win" :
+                                   result === "D" ? "draw" : "loss";
+
+            ptsCell.innerText = points;
+        } else {
+            resultCell.innerText = "";
+            resultCell.className = "";
+            ptsCell.innerText = "0";
+        }
+
+        totalCell.innerText = totalPoints;
+    }
+
+    document.getElementById("totalPoints").innerText = totalPoints;
+    document.getElementById("totalGoals").innerText = totalGoals;
+}
+
+// Generate rows
+for (let i = 1; i <= 38; i++) {
+    tableBody.innerHTML += `
+    <tr>
+        <td>${i}</td>
+        <td><input type="number" id="gs-${i}" min="0" oninput="updateTable()"></td>
+        <td><input type="number" id="gc-${i}" min="0" oninput="updateTable()"></td>
+        <td id="result-${i}"></td>
+        <td id="pts-${i}">0</td>
+        <td id="total-${i}">0</td>
+    </tr>
+    `;
+}
+</script>
+
+</body>
+</html>
